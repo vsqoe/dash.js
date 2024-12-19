@@ -35,7 +35,8 @@ angular.module('DashIFTestVectorsService', ['ngResource']).factory('dashifTestVe
 
 app.controller('DashController', ['$scope', '$window', 'sources', 'contributors', 'dashifTestVectors', function ($scope, $window, sources, contributors, dashifTestVectors) {
     $scope.selectedItem = {
-        url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
+        // url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
+        url: "https://better.sapnansl.site/1sec/playlist.mpd"
     };
 
     sources.query(function (data) {
@@ -485,6 +486,7 @@ app.controller('DashController', ['$scope', '$window', 'sources', 'contributors'
             e && e.isLast) {
             $scope.doLoad();
         }
+        clearInterval(loggerCallback);
     }, $scope);
 
     $scope.player.on(dashjs.MediaPlayer.events.KEY_SYSTEM_SELECTED, function (e) {
@@ -2103,6 +2105,57 @@ app.controller('DashController', ['$scope', '$window', 'sources', 'contributors'
             }
         }
     };
+
+    // Log to database
+    function logger() {
+        var data = {
+            "ts": Math.floor(Date.now() / 1000),
+            "videoBitrate": $scope.videoBitrate,
+            "videoIndex": $scope.videoIndex,
+            "videoPendingIndex": $scope.videoPendingIndex,
+            "videoPendingMaxIndex": $scope.videoPendingMaxIndex,
+            "videoMaxIndex": $scope.videoMaxIndex,
+            "videoBufferLength": $scope.videoBufferLength,
+            "videoDroppedFrames": $scope.videoDroppedFrames,
+            "videoLatencyCount": $scope.videoLatencyCount,
+            "videoLatency": $scope.videoLatency ,
+            "videoDownloadCount": $scope.videoDownloadCount,
+            "videoDownload": $scope.videoDownload ,
+            "videoRatioCount": $scope.videoRatioCount,
+            "videoRatio": $scope.videoRatio ,
+            "videoMtp": $scope.videoMtp,
+            "videoEtp": $scope.videoEtp,
+            "videoLiveLatency": $scope.videoLiveLatency,
+            "videoPlaybackRate": $scope.videoPlaybackRate,
+            "audioBitrate": $scope.audioBitrate,
+            "audioIndex": $scope.audioIndex,
+            "audioPendingIndex": $scope.audioPendingIndex,
+            "audioPendingMaxIndex": $scope.audioPendingMaxIndex,
+            "audioMaxIndex": $scope.audioMaxIndex,
+            "audioBufferLength": $scope.audioBufferLength,
+            "audioDroppedFrames": $scope.audioDroppedFrames,
+            "audioLatencyCount": $scope.audioLatencyCount,
+            "audioLatency": $scope.audioLatency ,
+            "audioDownloadCount": $scope.audioDownloadCount,
+            "audioDownload": $scope.audioDownload ,
+            "audioRatioCount": $scope.audioRatioCount,
+            "audioRatio": $scope.audioRatio ,
+            "audioMtp": $scope.audioMtp,
+            "audioEtp": $scope.audioEtp,
+            "audioLiveLatency": $scope.audioLiveLatency,
+            "audioPlaybackRate": $scope.audioPlaybackRate
+        };
+        console.log(data);
+        fetch("http://127.0.0.1:13000/data", {
+            method: "POST",
+            Headers: {"Accept": "application.json", "Content-Type": "application/json"},
+            body: JSON.stringify(data)
+        })
+            .then(res=>console.log("data posted"))
+            .catch(res => console.log("please start the logging server"));
+    }
+
+    const loggerCallback = setInterval(() => logger(), 100);
 
     $scope.plotPoint = function (name, type, value, time) {
         if ($scope.chartEnabled) {
